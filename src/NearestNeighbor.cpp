@@ -140,26 +140,30 @@ public:
     }
 };
 
-double leaveOneOutValidation(const set<int> &featureSubset, Classifier &nn, clock_t globalStart)
+class Validator
 {
-    int labelLen = labels.size();
-    cout << "Starting Leave-One-Out Validation on " << labelLen << " instances." << endl;
-    int correct = 0;
-
-    for (int i = 0; i < labelLen; i++)
+public:
+    double LeaveOneOutEvaluation(const set<int> &featureSubset, Classifier &nn, clock_t start)
     {
-        int predicted = nn.Test(allFeatures[i], featureSubset, i);
-        if (predicted == labels[i])
-            correct++;
+        int labelLen = labels.size();
+        cout << "Starting Leave-One-Out Evaluation on " << labelLen << " instances." << endl;
+        int correct = 0;
 
-        double elapsed = double(clock() - globalStart) / CLOCKS_PER_SEC;
-        cout << "Instance " << i << ": Predicted=" << predicted
-             << ", Actual=" << labels[i]
-             << ", Elapsed Time=" << elapsed << "s" << endl;
+        for (int i = 0; i < labelLen; i++)
+        {
+            int predicted = nn.Test(allFeatures[i], featureSubset, i);
+            if (predicted == labels[i])
+                correct++;
+
+            double elapsed = double(clock() - start) / CLOCKS_PER_SEC;
+            cout << "Instance " << i << ": Predicted=" << predicted
+                 << ", Actual=" << labels[i]
+                 << ", Elapsed Time=" << elapsed << "s" << endl;
+        }
+
+        return (double)correct / labelLen;
     }
-
-    return (double)correct / labelLen;
-}
+};
 
 int main()
 {
@@ -185,7 +189,8 @@ int main()
     nn.Train(labels, allFeatures);
 
     cout << "Beginning evaluation." << endl;
-    double accuracy = leaveOneOutValidation(featureSubset, nn, startTime);
+    Validator validator;
+    double accuracy = validator.LeaveOneOutEvaluation(featureSubset, nn, startTime);
     double endTime = double(clock() - startTime) / CLOCKS_PER_SEC;
 
     cout << "Using feature subset {1,15,27}, expected accuracy ~95%." << endl;
