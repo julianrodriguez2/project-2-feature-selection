@@ -1,2 +1,7 @@
 .vscode
 FeatureSelection.exe
+titanic-clean.txt
+nnClassifier.exe
+TEST.exe
+large-test-dataset.txt
+small-test-dataset.txt
