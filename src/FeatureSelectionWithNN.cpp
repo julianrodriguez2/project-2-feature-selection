@@ -344,3 +344,15 @@ int main()
 
     return 0;
 }
+
+// Group: Julian Rodriguez - jrodr546
+// - DatasetID: 211
+// - Small Dataset Results:
+// - Forward: Feature Subset: {3,5}, Acc: 0.92
+// - Backward: Feature Subset: {2,4,5,7,10} Acc: 0.82
+// - Large Dataset Results:
+// - Forward: Feature Subset: {1,27}, Acc: 0.95
+// - Backward: Feature Subset: {27}, Acc: 0.85
+// - Titanic Dataset Results:
+// - Forward: Feature Subset: {2}, Acc: 0.78
+// - Backward: Feature Subset: {2}, Acc: 0.78
