@@ -15,10 +15,9 @@ using namespace std;
 vector<int> labels;
 vector<vector<double>> allFeatures;
 
-bool loadData()
+bool loadData(const string &fileName)
 {
     // I manually changed it to small-test-dataset for testing
-    string fileName = "large-test-dataset.txt";
     ifstream dataFile(fileName);
     if (!dataFile.is_open())
     {
@@ -147,7 +146,6 @@ public:
     double LeaveOneOutEvaluation(const set<int> &featureSubset, Classifier &nn, clock_t start)
     {
         int labelLen = labels.size();
-        cout << "Starting Leave-One-Out Evaluation on " << labelLen << " instances." << endl;
         int correct = 0;
 
         for (int i = 0; i < labelLen; i++)
@@ -157,9 +155,9 @@ public:
                 correct++;
 
             double elapsed = double(clock() - start) / CLOCKS_PER_SEC;
-            cout << "Instance " << i << ": Predicted=" << predicted
-                 << ", Actual=" << labels[i]
-                 << ", Elapsed Time=" << elapsed << "s" << endl;
+            // cout << "Instance " << i << ": Predicted=" << predicted
+            //      << ", Actual=" << labels[i]
+            //      << ", Elapsed Time=" << elapsed << "s" << endl;
         }
 
         return (double)correct / labelLen;
@@ -186,7 +184,7 @@ void forwardSelection(int numFeat, Validator &validator, Classifier &nn)
 {
     set<int> curr;
     cout << "Using no features and \"random\" evaluation, I get an accuracy of "
-         << fixed << setprecision(1) << validator.LeaveOneOutEvaluation(curr, nn, clock()) * 100 << "%\n\n";
+         << fixed << setprecision(2) << validator.LeaveOneOutEvaluation(curr, nn, clock()) * 100 << "%\n\n";
     cout << "Beginning search.\n \n";
 
     double bestMaxAcc = 0.0;
@@ -206,7 +204,7 @@ void forwardSelection(int numFeat, Validator &validator, Classifier &nn)
                 double acc = validator.LeaveOneOutEvaluation(possibleSet, nn, clock());
                 cout << "Using feature(s) ";
                 printSet(possibleSet);
-                cout << " accuracy is " << fixed << setprecision(1) << acc << "%\n";
+                cout << " accuracy is " << fixed << setprecision(2) << acc << "%\n";
 
                 if (acc > bestAcc)
                 {
@@ -221,7 +219,7 @@ void forwardSelection(int numFeat, Validator &validator, Classifier &nn)
             curr.insert(bestFeat);
             cout << "\n Feature set ";
             printSet(curr);
-            cout << " was best, accuracy is " << fixed << setprecision(1) << bestAcc << "%\n \n";
+            cout << " was best, accuracy is " << fixed << setprecision(2) << bestAcc << "%\n \n";
 
             if (bestAcc > bestMaxAcc)
             {
@@ -237,7 +235,7 @@ void forwardSelection(int numFeat, Validator &validator, Classifier &nn)
 
     cout << "Finished search! The best feature subset is ";
     printSet(bestFeatSet);
-    cout << " with an accuracy of " << fixed << setprecision(1) << bestMaxAcc << "%\n";
+    cout << " with an accuracy of " << fixed << setprecision(2) << bestMaxAcc << "%\n";
 }
 
 void backwardElimination(int numFeat, Validator &validator, Classifier &nn)
@@ -250,7 +248,7 @@ void backwardElimination(int numFeat, Validator &validator, Classifier &nn)
 
     double bestMaxAcc = validator.LeaveOneOutEvaluation(curr, nn, clock());
     cout << "Using all features and \"random\" evaluation, I get an accuracy of "
-         << fixed << setprecision(1) << bestMaxAcc << "%\n \n";
+         << fixed << setprecision(2) << bestMaxAcc << "%\n \n";
     cout << "Beginning search.\n \n";
 
     set<int> bestFeatSet = curr;
@@ -267,7 +265,7 @@ void backwardElimination(int numFeat, Validator &validator, Classifier &nn)
             double acc = validator.LeaveOneOutEvaluation(possibleSet, nn, clock());
             cout << "Using feature(s) ";
             printSet(possibleSet);
-            cout << " accuracy is " << fixed << setprecision(1) << acc << "%\n";
+            cout << " accuracy is " << fixed << setprecision(2) << (acc * 100) << "%\n";
 
             if (acc > bestAcc)
             {
@@ -281,7 +279,7 @@ void backwardElimination(int numFeat, Validator &validator, Classifier &nn)
             curr.erase(bestFeat);
             cout << "\n Feature set ";
             printSet(curr);
-            cout << " was best, accuracy is " << fixed << setprecision(1) << bestAcc << "%\n \n";
+            cout << " was best, accuracy is " << fixed << setprecision(2) << (bestMaxAcc * 100) << "%\n \n";
 
             if (bestAcc > bestMaxAcc)
             {
@@ -293,7 +291,7 @@ void backwardElimination(int numFeat, Validator &validator, Classifier &nn)
 
     cout << "Finished search! The best feature subset is ";
     printSet(bestFeatSet);
-    cout << " with an accuracy of " << fixed << setprecision(1) << bestMaxAcc << "%\n";
+    cout << " with an accuracy of " << fixed << setprecision(2) << bestMaxAcc << "%\n";
 }
 
 int main()
@@ -301,8 +299,13 @@ int main()
     srand(time(0));
     clock_t startTime = clock();
 
+    cout << "Please enter the name of the dataset file: ";
+    string fileName;
+    cin >> fileName;
+
     cout << "Loading data." << endl;
-    if (!loadData())
+
+    if (!loadData(fileName))
     {
         return 1;
     }
@@ -313,6 +316,8 @@ int main()
     cout << "Normalization completed in " << afterNormalize << " seconds." << endl;
 
     Classifier nn;
+    nn.Train(labels, allFeatures);
+
     Validator validator;
 
     cout << "Welcome to Julian Rodriguez Feature Selection Algorithm.\n";
